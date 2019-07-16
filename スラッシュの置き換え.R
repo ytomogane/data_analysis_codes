@@ -19,3 +19,4 @@ pathPrep <- function(path = "clipboard") {
 #パスコピーpathPrep()実行、ペースト。これでいける
 
 pathPrep()
+

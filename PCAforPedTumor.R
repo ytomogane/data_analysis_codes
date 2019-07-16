@@ -1,13 +1,16 @@
 #PCAforPedTumor
-data=read.csv('/Users/tomokinn/Google ドライブ/for_analyzePedTumorMRI10162017/forAnalyze_Ped2000_tumor_data_05232017_combined_M2corrected_withTumorROI_7172017_10132017withNA.csv')
-anal=data[,3:17]
-pcIr <- pca(anal, method="nipals", nPcs=15, cv="q2")
+data <- read.xlsx("C:/Users/yousu/Google Drive/JHU research 2016-2019/for_analyze_05022019 Pediatric tumor/forR ped tumor data summary 05142019.xlsx",
+                  sheet=1)
+#data=read.xlsx('C:/Users/yousu/Google Drive/JHU research 2016-2019/for_analyze_02282019 Pediatric tumor/forR ped tumor data summary 03152019.xlsx')
+#anal=data[,3:17]
+anal=data[1:34,8:23]
+pcIr <- pca(anal)
 pc1 <- scores(pcIr)[,1]
 pc2 <- scores(pcIr)[,2]
 pc3 <- scores(pcIr)[,3]
 pc4 <- scores(pcIr)[,4]
-age <- data[,5]
-label <- as.factor(data[,2])
+age <- data[,3]
+label <- as.factor(data[,7])
 plot(pc1, pc2, col=label)
 scores(pcIr)
 loadings(pcIr)

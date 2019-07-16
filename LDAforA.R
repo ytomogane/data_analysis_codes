@@ -4,10 +4,11 @@
 
 
 #data=read.csv('/Users/tomokinn/Google ドライブ/AComStaAbu_afterMICE_Text09072017.csv')
-data=read.csv('/Users/yousu/Google_Drive/for_analyze_02282018/PCA results03122018 after absolute/x03122018.csv')
+#data=read.csv('/Users/yousu/Google_Drive/for_analyze_02282018/PCA results03122018 after absolute/x03122018.csv')
+data=read.csv("C:/Users/yousu/Google Drive/JHU research 2016-2019/for_analyze_02282019 Pediatric tumor/PCA k-mean data results/03202019/PCA nipals data.csv")
 
-ForLDA1=data[c(7,18:424)]
-Z=lda(Diagnosis.D.N~.,data=ForLDA1)
+ForLDA1=data[1:27,1:16]
+Z=lda(Tumor~.,data[1:27,1:15]) #CSFのカラムがvariables are collinearであり、外す
 
 #判別関数を用いた判別得点はコマンド predict(Z)$x で返される。
 # $class は各個体が判別されたグループのラベルで、$posterior は
