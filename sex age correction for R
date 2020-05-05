@@ -1,0 +1,95 @@
+#sex age correction from Matlab code by Chenfei
+
+#Chenfei Ye 08/11/2017
+#% This script is designed for confounding adjustment
+#% Input:
+  #% vol: volume matrix, type:double, #row=#subjects, #column=#parcels
+#% age: age vector, type:double, #row=#subjects, #column=1
+#% sex: sex vector, type:double(integer) or cell(string), #row=#subjects, #column=1
+#% group: group type vector, type:double(integer) or cell(string), #row=#subjects, #column=1
+#% Output:
+  #% output: adjusted volume matrix, type:double, #row=#subjects, #column=#parcels
+#% Coeff: linear coefficients structure, type: structure
+#% reference method: Dukart J, Schroeter M L, Mueller K, et al. Age correction in dementiaｨCmatching to a healthy brain[J]. PloS one, 2011, 6(7): e22193.
+#% ------cye7@jhu.edu
+
+
+#xlsx reading package
+library(gdata)
+require(gdata)
+
+
+#data reading
+#data=read.xlsx("C:/Users/yousu/Google Drive/JHU research 2016-2019/for_analyze_06202019_ABOD_for_DrOISHIdata/forR detailed LV3 testdataset for ABOD LOO 06252019.xlsx",sheet = 1)
+data=read.xls("/Users/yusuke/Library/Mobile Documents/com~apple~CloudDocs/JHU research 2016-2019/for_analyze_04202020_SBS_for_DrOISHIdata/all PING data forSBStest LV3 training dataset06272019.xlsx",sheet = 3)
+#anal=data[c(1:798),c(30:100)]
+data=data[c(2:175),c(8,9,13:50)]
+#data=read.csv('/Users/yousu/Google_Drive/for_analyze_03132018/4-7years_zscores_analyze03132018_02282018_subject_June2015.csv')
+#anal=data[1:1047,32:440]
+
+setwd("/Users/yusuke/Google ドライブ/analyze_pedtumor07112017/8102017")
+
+#function [output,Coeff]=adjustment_general(vol,age,sex)
+
+
+#% initialzie
+vol=data[,c(3:40)] #for MRIcloud LV3
+sex=data[,c(2)]
+age=data[,c(1)]
+output=vol;
+#Coeff.Intercep=zeros(1,size(vol,2));
+##Coeff$Itercep=matrix(0,1,nrow(vol));
+#Coeff.volume=zeros(1,size(vol,2));
+##Coeff$volume=matrix(0,1,nrow(vol));
+##Coeff$age=Coeff$volume;
+##Coeff$sex=Coeff$volume;
+#%     Coeff.group=Coeff.volume;
+Coeff=list(Intercep=matrix(0,1,ncol(vol)), volume=matrix(0,1,ncol(vol)),age=matrix(0,1,ncol(vol)),sex=matrix(0,1,ncol(vol)))
+
+sexx=as.matrix(sex)
+sexx=lapply(sexx, gsub, pattern="M", replacement = "1")
+sexx=lapply(sexx, gsub, pattern="F", replacement = "2")
+sexx=as.numeric(sexx)
+sex=as.matrix(sexx)
+sex=as.numeric(sex)
+i=1
+
+for(i in 1:ncol(vol))　{
+  vol_eachColumn=as.numeric(as.character(vol[,i]))
+  #sex=grp2idx(sex)
+  #%     group=grp2idx(group);
+  #fittable = table(vol_eachColumn,age,sex)
+  fittable = data.frame(vol_eachColumn,age,sex)
+  #fittable[,1]=as.numeric(as.character(fittable[,1]))
+  fittable[,3]=as.numeric(fittable[,3])
+  #fittable$sex = nominal(fittable$sex)
+  #%     fittable.group = nominal(fittable.group);
+  lm2 = lm(vol_eachColumn~age+sex,data=fittable)
+  #Coeff.Intercep(i)=cell2mat(table2cell(lm2.Coefficients(1,1)));
+  Coeff$Intercep[i]=lm2$coefficients[1]
+  #Coeff.age(i)=cell2mat(table2cell(lm2.Coefficients(2,1)));
+  Coeff$age[i]=lm2$coefficients[2]
+  #Coeff.sex(i)=cell2mat(table2cell(lm2.Coefficients(3,1)));
+  Coeff$sex[i]=lm2$coefficients[3]
+  #%     Coeff.group(i)=cell2mat(table2cell(lm2.Coefficients(4,1)));
+  #%     output(:,i)=vol_eachColumn-Coeff.age(i)*age-Coeff.sex(i)*sex-Coeff.group(i)*group;
+  #output(:,i)=vol_eachColumn-Coeff.age(i)*age-Coeff.sex(i)*sex;
+  output[,i]=vol_eachColumn-Coeff$age[i]*age-Coeff$sex[i]*sex
+
+}
+ 
+end() 
+
+
+
+table=data.frame(output)
+file.name="sexage correction.csv"
+rownames(table)=NULL 
+colnames(table)=NULL
+write.table(table,file=file.name ,sep=",")
+
+table=data.frame(rbind(age=Coeff$age,sex=Coeff$sex))
+rownames(table)=c("age","sex")
+write.table(table,file="Coeff age,sex.csv", sep=",")
+
+
